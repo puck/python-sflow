@@ -4,6 +4,9 @@ Determine the "direction" of a flow.
 
 def mangle_flow(flow):
 
+    if flow['metadata']['has_ip'] == False:
+        return flow
+
     if flow['sample']['input'] == 0x3FFFFFFF: # sflow interface "internal"
         flow['metadata']['direction'] = 'outbound'
         flow['metadata']['local_address'] = flow['metadata']['source_ip']
