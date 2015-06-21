@@ -1,3 +1,7 @@
+"""
+Digest the network headers (L2 and partial L3) for a particular flow.
+"""
+
 import frame
 
 def mangle_flow(flow):
