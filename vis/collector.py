@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+"""
+An sFlow collector which passes received flow samples through dynamically loaded plugins.
+
+Michael Fincham <michael@hotplate.co.nz>
+"""
+
 import imp
 import multiprocessing
 import os
@@ -27,15 +33,27 @@ class ForkedPdb(pdb.Pdb):
             sys.stdin = _stdin
 
 def plugin_name(plugin_path):
+    """
+    Given a path to a plugin (e.g. `plugins/00-foo.py') return the plugin's canonical name (e.g. `foo').
+    """
+    
     return plugin_path.split('/')[-1].split('.')[0].split('-')[-1]
 
 def plugins(directory):
+    """
+    Return a dictionary of loaded plugins from `directory'.
+    """
+    
     return [
         imp.load_source(plugin_name(plugin_path), "%s/%s" % (directory, plugin_path)) 
         for plugin_path in sorted(os.listdir(directory)) if plugin_name(plugin_path) != '__init__' and plugin_path.endswith('.py')
     ]
 
 def packet_processor(queue):
+    """
+    Multi-processing child process to handle sFlow packets and pass them through the loaded plugins in order.
+    """
+    
     plugins_list = plugins(plugins_directory)
 
     while True:

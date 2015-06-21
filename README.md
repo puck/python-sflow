@@ -1,2 +1,2 @@
 # python-sflow
-Python sFlow collector and visualisation tools
+Basic instructive sFlow collector and visualisation tools in Python, using InfluxDB.
