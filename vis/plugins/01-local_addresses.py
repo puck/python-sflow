@@ -3,7 +3,6 @@ Determine the "direction" of a flow.
 """
 
 def mangle_flow(flow):
-
     if flow['metadata']['has_ip'] == False:
         return flow
 
