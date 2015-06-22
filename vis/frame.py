@@ -121,7 +121,6 @@ class Frame(object):
             'ipv6_next_header',
             'ipv6_payload_length',
             'ipv6_source_ip',
-            'payload_offset',
             'source_ip',
             'source_mac',
             'total_length',

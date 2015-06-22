@@ -19,6 +19,10 @@ def mangle_flow(flow):
         }
     ]
 
-    influx_client.write_points(json_body)
+    try:
+        influx_client.write_points(json_body)
+        print "Wrote to InfluxDB!"
+    except:
+        print "Couldn't write to InfluxDB :("
 
     return flow
