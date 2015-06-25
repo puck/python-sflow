@@ -74,11 +74,10 @@ class Frame(object):
             self.ipv4_source_ip = socket.inet_ntoa(self.ipv4_header[8])
             self.ipv4_destination_ip = socket.inet_ntoa(self.ipv4_header[9])
 
-            self.has_ip = True
-            self.ip_version = 4
+            self.has_ip = 4
             self.total_length = self.ipv4_total_length
-            self.source_ip = ipaddr.IPAddress(self.ipv4_source_ip)
-            self.destination_ip = ipaddr.IPAddress(self.ipv4_destination_ip)
+            self.source_ip = self.ipv4_source_ip
+            self.destination_ip = self.ipv4_destination_ip
 
         elif self.ethertype == self.ETHERTYPES['IPv6']:
             self.ipv6_header = struct.unpack("!4sHBB16s16s", packet[self.payload_offset:self.payload_offset+40])
@@ -87,13 +86,12 @@ class Frame(object):
             self.ipv6_payload_length = self.ipv6_header[1]
             self.ipv6_next_header = self.ipv6_header[2]
 
-            self.has_ip = True
-            self.ip_version = 6
+            self.has_ip = 6
             self.total_length = self.ipv6_payload_length + 40
-            self.source_ip = ipaddr.IPAddress(self.ipv6_source_ip)
-            self.destination_ip = ipaddr.IPAddress(self.ipv6_destination_ip)
+            self.source_ip = self.ipv6_source_ip
+            self.destination_ip = self.ipv6_destination_ip
         else:
-            self.has_ip = False
+            self.has_ip = 0
 
     def sum_header_lengths(self):
         """
@@ -104,7 +102,7 @@ class Frame(object):
 
     def to_dict(self):
         """
-        Return a dictionary of some of the useful properties of the decoded frame.
+        Return a dictionary of some of the useful properties of the decoded frame. For use in the ISIG demo! Otherwise a bit pointless.
         """
         
         desired_keys = (
@@ -113,18 +111,10 @@ class Frame(object):
             'ethertype',
             'has_ip',
             'ip_version',
-            'ipv4_destination_ip',
             'ipv4_protocol',
-            'ipv4_source_ip',
-            'ipv4_total_length',
-            'ipv6_destination_ip',
             'ipv6_next_header',
-            'ipv6_payload_length',
-            'ipv6_source_ip',
             'source_ip',
             'source_mac',
-            'total_length',
-            'vlans',
         )
 
         return {k: v for k, v in self.__dict__.items() if k in desired_keys}

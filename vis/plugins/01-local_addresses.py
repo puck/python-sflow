@@ -15,4 +15,7 @@ def mangle_flow(flow):
         flow['metadata']['local_address'] = flow['metadata']['destination_ip']
         flow['metadata']['remote_address'] = flow['metadata']['source_ip']
 
+    flow['metadata'].pop('source_ip')
+    flow['metadata'].pop('destination_ip')
+
     return flow

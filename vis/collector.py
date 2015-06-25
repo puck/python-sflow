@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 An sFlow collector which passes received flow samples through dynamically loaded plugins.
@@ -10,27 +10,9 @@ import imp
 import multiprocessing
 import os
 
-import pdb
-import sys
-
 import sflow
 
 plugins_directory = "plugins"
-
-class ForkedPdb(pdb.Pdb):
-    """
-    A Pdb subclass that may be used from a forked multiprocessing child.
-
-    Borrowed from <http://stackoverflow.com/a/23654936> for debugging.
-    """
-
-    def interaction(self, *args, **kwargs):
-        _stdin = sys.stdin
-        try:
-            sys.stdin = file('/dev/stdin')
-            pdb.Pdb.interaction(self, *args, **kwargs)
-        finally:
-            sys.stdin = _stdin
 
 def plugin_name(plugin_path):
     """
