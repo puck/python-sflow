@@ -8,4 +8,9 @@ def mangle_flow(flow):
     else:
         flow['metadata']['dissident'] = 'nah'
 
+    if 'metlstorm' in flow['payload']:
+        flow['metadata']['suspicious'] = 'yep'
+    else:
+        flow['metadata']['suspicious'] = 'nah'
+
     return flow
