@@ -2,23 +2,42 @@
 Send packets to logstash!
 """
 
+import json
+import datetime
+import os
 import logging
-from logstash_formatter import LogstashFormatterV1
 
-logging.basicConfig(filename='example.log',level=logging.INFO)
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = LogstashFormatterV1()
+logfile="/tmp/sflow-logstash.log"
+logstash_current = None
+logstash_file    = None
 
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 def mangle_flow(flow):
+    global logstash_file
+    global logstash_current
+    logger = logging.getLogger(__name__)
 
-    logger.info("traffic", extra={
-      "sflow": flow['metadata'],
-      "packets": flow['sample']['sampling_rate'],
-      "octets": (flow['frame_length'] - flow['stripped'] - flow['header_length']) * flow['sample']['sampling_rate'],
-    })
+    today = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    if logstash_current is None or today != logstash_current:
+        logstash_current = today
+        try:
+            logstash_file.close()
+        except:
+            pass
 
+        logfile_current = "%s.%s" % (logfile, logstash_current)
+        print "logfile to use: %s" % (logfile_current)
+        logstash_file = open(logfile_current, 'wb')
+
+    now = datetime.datetime.utcnow();
+    json_body = [
+        {
+            "timestamp": now.strftime("%Y-%m-%dT%H:%M:%S") + ".%03d" % (now.microsecond / 1000) + "Z",
+            "sflow": flow['metadata'],
+            "packets": flow['sample']['sampling_rate'],
+            "octets": (flow['frame_length'] - flow['stripped'] - flow['header_length']) * flow['sample']['sampling_rate'],
+        }
+    ]
+
+    logstash_file.write(json.dumps(json_body, sort_keys = True, ensure_ascii=False) + "\n")
     return flow
