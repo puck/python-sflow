@@ -1,0 +1,3 @@
+plugins:
+  logstash:
+    logfile: /var/spool/python-sflow/sflow-logstash.log
