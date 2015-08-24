@@ -7,12 +7,22 @@ import datetime
 import os
 import logging
 
-logfile="/tmp/sflow-logstash.log"
+config  = None
 logstash_current = None
 logstash_file    = None
 
+def setup(new_config):
+    global config
+    global logfile
+
+    config = new_config
+
+    logfile = config.config['plugins']['logstash']['logfile']
+    if logfile is None:
+        logfile = "/var/spool/python-sflow/sflow-logstash.log"
 
 def mangle_flow(flow):
+    global logfile
     global logstash_file
     global logstash_current
     logger = logging.getLogger(__name__)
@@ -30,14 +40,12 @@ def mangle_flow(flow):
         logstash_file = open(logfile_current, 'wb')
 
     now = datetime.datetime.utcnow();
-    json_body = [
-        {
+    json_body = {
             "timestamp": now.strftime("%Y-%m-%dT%H:%M:%S") + ".%03d" % (now.microsecond / 1000) + "Z",
             "sflow": flow['metadata'],
             "packets": flow['sample']['sampling_rate'],
             "octets": (flow['frame_length'] - flow['stripped'] - flow['header_length']) * flow['sample']['sampling_rate'],
         }
-    ]
 
     logstash_file.write(json.dumps(json_body, sort_keys = True, ensure_ascii=False) + "\n")
     return flow
