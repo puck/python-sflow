@@ -40,7 +40,7 @@ def setup_plugins(directory, config):
     plugins_list = plugins(plugins_directory)
     for plugin in plugins_list:
         try:
-            flow = plugin.setup(config)
+            plugin.setup(config)
         except AttributeError:
             pass
 
