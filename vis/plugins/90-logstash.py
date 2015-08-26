@@ -47,5 +47,9 @@ def mangle_flow(flow):
             "octets": (flow['frame_length'] - flow['stripped'] - flow['header_length']) * flow['sample']['sampling_rate'],
         }
 
+    if 'remote_address' in flow['metadata']:
+        json_body["clientip"] = flow['metadata']['remote_address']
+
+
     logstash_file.write(json.dumps(json_body, sort_keys = True, ensure_ascii=False) + "\n")
     return flow
