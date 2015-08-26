@@ -60,6 +60,11 @@ def mangle_flow(flow):
     if flow['metadata']['has_ip'] == False:
         return flow
 
-    flow['metadata']['customer'] = _address_in_network_list(flow['metadata']['local_address']) or 'unknown'
+    flow['metadata']['customer']   = _address_in_network_list(flow['metadata']['local_address']) or 'unknown'
+
+    if flow['metadata']['local_address'] in ips:
+        flow['metadata']['local_name'] = ips[flow['metadata']['local_address']]
+    else:
+        flow['metadata']['local_name'] = flow['metadata']['local_address']
 
     return flow
