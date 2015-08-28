@@ -81,7 +81,7 @@ if __name__ == '__main__':
     )
     processor_process.start()
 
-    sflow_collector = sflow.FlowCollector(bind_address='127.0.0.1')
+    sflow_collector = sflow.FlowCollector(bind_address='0.0.0.0')
 
     for packet in sflow_collector.receive():
         packet_queue.put(packet)
