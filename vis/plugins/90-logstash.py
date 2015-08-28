@@ -50,6 +50,13 @@ def mangle_flow(flow):
     if 'remote_address' in flow['metadata']:
         json_body["clientip"] = flow['metadata']['remote_address']
 
+    # Store octets in two different locations, so outbound can be negative (below the line)
+    if 'direction' in flow['metadata']:
+        if flow['metadata']['direction'] == 'outbound':
+            json_body["octets_out"] = 0 - json_body['octets']
+        else:
+            json_body["octets_in"] = json_body['octets']
+
 
     logstash_file.write(json.dumps(json_body, sort_keys = True, ensure_ascii=False) + "\n")
     return flow
