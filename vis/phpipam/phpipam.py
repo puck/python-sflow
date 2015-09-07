@@ -49,17 +49,21 @@ def decrypt(key, encoded):
     return plaintext
 
 class PHPIPAM:
-    def __init__(self, url, api_id, api_key):
+    def __init__(self, url, api_id, api_key, path='', https=False):
         """Constructor
 
         Parameters
             url - string base url to phpipam server
             api_id - string phpipam api id
             api_key - string phpipam api key
+            path - string prefix for URL
+            https? - boolean set to True for HTTPS, False otherwise
         """
         self.url = url
         self.api_id = api_id
         self.api_key = api_key
+        self.path = path
+        self.https = https
 
     def query_phpipam(self, **kwargs):
         """Query PHPIPAM API
@@ -83,8 +87,11 @@ class PHPIPAM:
         params = urllib.urlencode(data)
 
         headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-        conn = httplib.HTTPConnection(self.url)
-        conn.request("POST", "/phpipam/api/index.php", params, headers)
+        if self.https:
+            conn = httplib.HTTPSConnection(self.url)
+        else:
+            conn = httplib.HTTPConnection(self.url)
+        conn.request("POST", self.path + "/api/index.php", params, headers)
         response = conn.getresponse()
 
         data = response.read()
@@ -291,7 +298,27 @@ class PHPIPAM:
 
         return self.query_phpipam(**data)
 
-    def read_addresses(self, format="ip", id=None, subnet_id=None):           
+    def read_addresses(self, format="ip", id=None, subnet_id=None):
+        """Fetch addresses
+
+        Retrieve list of addresses by specified filter
+
+        Parameters
+            format - string output format (ip/decimal)
+            id - optional int address id
+            subnet_id - optional int ssubnet_id
+        Returns
+            JSON
+            {
+                "success":true,
+                "data": [
+                    {
+                        ...address data...
+                    },
+                    ...
+                ]
+            }
+        """
         data = {"controller": "addresses", "action": "read", "format": format}
         if not id and not subnet_id:
             data.update({"all": True})
@@ -301,7 +328,7 @@ class PHPIPAM:
             data.update({"subnetId": subnet_id})
 
         return self.query_phpipam(**data)
-    
+
     def create_subnet(self, section_id, subnet, mask, format="ip", master_subnet_id=0, vrf_id=0, vlan_id=0, allow_requests=0, show_name=0, ping_subnet=0, permissions=None, description=None):
         """Create subnet
 
