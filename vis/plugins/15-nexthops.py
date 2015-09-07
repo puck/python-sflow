@@ -14,8 +14,12 @@ def setup(new_config):
 
     # networks which will get a particular classification
     try:
-        classified_nexthops = _load_nexthops_from_file(config.config['plugins']['nexthops']['upstreams'])
-        unclassifiable_nexthop = config.config['plugins']['nexthops']['unclassifiable'] # fall back if no classification possible
+        if 'nexthops' in config.config['plugins'] and 'upstreams' in config.config['plugins']['nexthops']:
+            classified_nexthops = _load_nexthops_from_file(config.config['plugins']['nexthops']['upstreams'])
+        try:
+            unclassifiable_nexthop = config.config['plugins']['nexthops']['unclassifiable'] # fall back if no classification possible
+        except:
+            unclassifiable_nexthop = 'unknown'
     except Exception,e:
         raise Exception("unable to load nexthop classifications: %s" % e)
 
@@ -45,9 +49,9 @@ def mangle_flow(flow):
     if flow['metadata']['has_ip'] == False:
         return flow
 
-    nexthop = classified_nexthops[flow['metadata']['remote_mac'].lower()]
-
-    if not nexthop:
+    try:
+        nexthop = classified_nexthops[flow['metadata']['remote_mac'].lower()]
+    except:
         nexthop = unclassifiable_nexthop
 
     flow['metadata']['nexthop'] = nexthop
