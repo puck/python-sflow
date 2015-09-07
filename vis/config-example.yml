@@ -1,7 +1,20 @@
+# Direction can be "inbound" or "outbound", which direction
+# is traiffc leaving or entering our network? Depends on which
+# router interface we're watching for sflow data.
+local: inbound
 plugins:
   logstash:
     logfile: /var/spool/python-sflow/sflow-logstash.log
   nexthops:
     upstreams: nexthops/example
     unclassifiable: unknown
-
+#  phpipam:
+#    url: your.phpipam.here.example.com
+#    api_id: "app_id you've created"
+#    api_key: "app key assigned"
+  categorise:
+    classifications:
+      local-rfc1918: networks/rfc1918
+      local: networks/clocal
+      national: networks/national
+    unclassifiable: international
