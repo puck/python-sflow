@@ -52,6 +52,9 @@ class FlowCollector(object):
         self.sflow_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         listen_address = (bind_address, bind_port)
         self.sflow_socket.bind(listen_address)
+        self.report_every_x_records = 100
+        self.count = 0
+        self.last_report_at = int(time.time())
 
     def _decode_sflow_packet(self, payload):
         """
@@ -141,3 +144,15 @@ class FlowCollector(object):
         while True:
             data, addr = self.sflow_socket.recvfrom(65535)
             yield(self._decode_sflow_packet(data))
+            self.count += 1
+            if self.count >= self.report_every_x_records:
+                now = int(time.time())
+                delta = now - self.last_report_at
+                print "Received %d sflow packets in %d seconds" % (self.count, delta)
+                self.count = 0
+                self.last_report_at = now
+
+                if delta < 10:
+                    new_threshold = self.report_every_x_records * 1.5
+                    print "Received too many packets, increasing the reporting threshold by 50%% (from %d to %d)" % (self.report_every_x_records, new_threshold)
+                    self.report_every_x_records = new_threshold

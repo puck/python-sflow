@@ -9,6 +9,7 @@ Michael Fincham <michael@hotplate.co.nz>
 import imp
 import multiprocessing
 import os
+import config
 
 import sflow
 
@@ -30,6 +31,18 @@ def plugins(directory):
         imp.load_source(plugin_name(plugin_path), "%s/%s" % (directory, plugin_path)) 
         for plugin_path in sorted(os.listdir(directory)) if plugin_name(plugin_path) != '__init__' and plugin_path.endswith('.py')
     ]
+
+def setup_plugins(directory, config):
+    """
+    Setup any plugins that need setup
+    """
+
+    plugins_list = plugins(plugins_directory)
+    for plugin in plugins_list:
+        try:
+            plugin.setup(config)
+        except AttributeError:
+            pass
 
 def packet_processor(queue):
     """
@@ -54,6 +67,13 @@ if __name__ == '__main__':
 
     print "Starting collector..."
 
+    config = config.Config()
+    config.load()
+
+    # Setup plugins
+    plugins_list = plugins(plugins_directory)
+    setup_plugins(plugins_directory, config)
+
     # set up packet queue and packet processor
     packet_queue = multiprocessing.Queue()
     processor_process = multiprocessing.Process(
@@ -61,7 +81,7 @@ if __name__ == '__main__':
     )
     processor_process.start()
 
-    sflow_collector = sflow.FlowCollector(bind_address='127.0.0.1')
+    sflow_collector = sflow.FlowCollector(bind_address='0.0.0.0')
 
     for packet in sflow_collector.receive():
         packet_queue.put(packet)
