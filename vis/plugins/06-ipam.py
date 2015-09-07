@@ -5,10 +5,12 @@ Determine the "customer" of a flow.
 import phpipam
 import json
 import ipaddr
+import time
 
 def setup(new_config):
     global config
     global ipam
+    global ipam_next_reload
 
     config = new_config
     ipam = phpipam.PHPIPAM(
@@ -21,6 +23,7 @@ def setup(new_config):
 
 
 def slurp_details():
+    global config
     global ipam
     global subnets
     global ips
@@ -40,6 +43,15 @@ def slurp_details():
             for ip in ip_data['data']:
                 ips[ip['ip_addr']] = ip['description'] or ip['dns_name']
 
+    print "phpipam: loaded %d subnets, %d IP addresses" % (len(subnets), len(ips))
+
+    # Default to a reload_interval of 30 minutes
+    try:
+        reload_interval = config.config['plugins']['phpipam']['reload_interval']
+    except:
+        reload_interval = 30
+    ipam_next_reload = int(time.time()) + 60 * reload_interval
+
 def _address_in_network_list(address):
     """
     Returns the description for the most specific network which contains address
@@ -57,8 +69,14 @@ def _address_in_network_list(address):
     return description
 
 def mangle_flow(flow):
+    global ipam_next_reload
+
     if flow['metadata']['has_ip'] == False:
         return flow
+
+    if ipam_next_reload >= int(time.time()):
+        print "phpipam: reloading details"
+        slurp_details()
 
     flow['metadata']['customer']   = _address_in_network_list(flow['metadata']['local_address']) or 'unknown'
 

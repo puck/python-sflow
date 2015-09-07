@@ -12,6 +12,7 @@ plugins:
 #    url: your.phpipam.here.example.com
 #    api_id: "app_id you've created"
 #    api_key: "app key assigned"
+#    reload_interval: 30 # defaults to 30 minutes
   categorise:
     classifications:
       local-rfc1918: networks/rfc1918
