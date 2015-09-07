@@ -1,3 +1,7 @@
 plugins:
   logstash:
     logfile: /var/spool/python-sflow/sflow-logstash.log
+  nexthops:
+    upstreams: nexthops/example
+    unclassifiable: unknown
+

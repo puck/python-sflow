@@ -1,0 +1,5 @@
+Name,IP Address,Hostname,MAC
+ISP A,198.51.100.10,isp-a1.wix.nzix.net,12:34:56:78:9a:bc
+ISP A,198.51.100.11,isp-a2.wix.nzix.net,12:34:56:78:9a:bd
+ISP B,198.51.100.100,isp-b1.wix.nzix.net,12:34:56:79:ab:cd
+ISP B,198.51.100.101,isp-b2.wix.nzix.net,12:34:56:79:ab:ce
