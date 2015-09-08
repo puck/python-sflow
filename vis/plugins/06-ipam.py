@@ -27,6 +27,7 @@ def slurp_details():
     global ipam
     global subnets
     global ips
+    global ipam_next_reload
 
     subnets = []
     ips     = {}
@@ -74,7 +75,7 @@ def mangle_flow(flow):
     if flow['metadata']['has_ip'] == False:
         return flow
 
-    if ipam_next_reload >= int(time.time()):
+    if ipam_next_reload <= int(time.time()):
         print "phpipam: reloading details"
         slurp_details()
 
